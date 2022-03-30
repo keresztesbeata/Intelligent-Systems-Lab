@@ -254,28 +254,28 @@ plt.show()
 
 """##### _Vehicle_Damage vs other features_"""
 
-fig, axes = plt.subplots(1,5, figsize=(32,6))
+fig, axes = plt.subplots(1,5, figsize=(28,6))
 
 axes[0].pie( x= train.groupby('Vehicle_Damage')['Previously_Insured'].count(), 
             labels=train['Vehicle_Damage'].unique(), autopct='%1.1f%%', 
-            shadow=True, colors = sns.color_palette('Set2'))
+            shadow=True)
 axes[0].set_title('Vehicle_Damage vs Previously_Insured')
 axes[0].legend(labels=train['Previously_Insured'].unique(), title = "Previously_Insured", 
            fontsize = 'large', title_fontsize = "10")
 
-sns.countplot(hue = 'Vehicle_Damage', x = 'Previously_Insured', data = train,ax=axes[1], palette='Set2')
-axes[1].set_title('Vehicle_Damage vs Previously_Insured')
+sns.pointplot(x = 'Vehicle_Damage', y = 'Annual_Premium', data = train,ax=axes[1])
+axes[1].set_title('Vehicle_Damage vs Annual_Premium')
 
 # transform Vehicle_Age to numerical value to be able to represent it
 vehicle_age_encoded = train.copy()
 vehicle_age_encoded['Vehicle_Age'] = vehicle_age_encoded['Vehicle_Age'].apply(lambda x: 0 if x == "< 1 Year" else 1 if x == "1-2 Year" else 2)
 
-sns.countplot(hue = 'Vehicle_Damage', x = 'Vehicle_Age', data = train,ax=axes[2], palette='Set2_r')
+sns.countplot(hue = 'Vehicle_Damage', x = 'Vehicle_Age', data = train,ax=axes[2])
 axes[2].set_title('Vehicle_Damage vs Vehicle_Age')
 
 axes[3].pie( x= train.groupby('Vehicle_Damage')['Age'].mean(), 
             labels=train['Vehicle_Damage'].unique(), autopct='%1.1f%%', 
-            shadow=True,  colors = sns.color_palette('Set3'))
+            shadow=True)
 axes[3].set_title('Vehicle_Damage vs Age')
 axes[3].legend(labels=train['Age'].unique(), title = "Age", 
            fontsize = 'large', title_fontsize = "10")
@@ -296,6 +296,7 @@ plt.show()
 
 """> **Observations**:
 * _Vehicle_Damage vs Previusly_Insured_: Around half of those who had insurance on their cars before had suffered some damage to it.
+* _Vehicle_Damage vs Annual_Premium_: Those who had damaged vehicles before have to pay a higher amount for Annual Premium.
 * _Vehicle_Damage vs Vehicle_Age_: Newer cars, with age < 1 Year, were less likely to have damage to them, while the cars with ages 1-2 Years were the most likely to have had some damage to them before.
 * _Vehicle_Damage vs Age_: Older Customers were more likely to have had damaged cars before than younger customers.
 * _Vehicle_Damage vs Gender_: More female customers had damage to their cars before than male customers.
@@ -447,7 +448,7 @@ print("Nr of positive responses from old customers: " , nr_positive_responses_ol
 print("Ratio of positive responses from old customers: " ,  str(round(ratio_of_positive_responses_old,4)) + " (" + str(round(ratio_of_positive_responses_old * 100,2)) + "%) ")
 print("--------------------------------------------------------------------------------------------------------")
 
-"""However, comparing the ratio of positive and negative responses per age category, our the calculations show, that 4% of the younger customers wanted a car insurance, 20% of the middle aged ones, and 13% of the retired customers. From here, we can conclude that the insurance in the vehicle is more popular among the middle-aged and older generations, and young customers had the most negative answers.
+"""Comparing the ratio of positive and negative responses per age category, our the calculations show, that 4% of the younger customers wanted a car insurance, 20% of the middle aged ones, and 13% of the retired customers. From here, we can conclude that the insurance in the vehicle is more popular among the middle-aged and older generations, and young customers had the most negative answers.
 
 This tells us, that age indeed, represents an important factor in determining whether or not a customer would be interested in a car insurance.
 
@@ -734,10 +735,15 @@ train_corr.head()
 corr_matrix = train_corr.corr()
 corr_matrix["Response"].sort_values(ascending=False)
 
-# attributes which influence positively the Response attribute
-important_attributes = ['Vehicle_Damage', 'Policy_Sales_Channel_Group','Gender','Annual_Premium_Treated','Driving_License']
+"""Attributes which influence positively the Response attribute:
+* **Vehicle_Damage**
+* **Policy_Sales_Channel_Group**
+* **Gender**
+* **Annual_Premium_Treated**
+* **Driving_License**
 
-"""The correlation between the independnet attributes and the target feature, Response, can be better understod when looking at a heatmap:"""
+The correlation between the independent attributes and the target feature, Response, can be better understod when looking at a heatmap:
+"""
 
 # generate a heatmap
 fig, ax1 = plt.subplots(figsize=(10, 5), dpi=100)
@@ -759,7 +765,7 @@ plt.show()
 * **id**: it's completely independent of the other features, and also of the target feature, Response, therefore it is useless for the model.
 * **Vintage_Treated**: also 0 correlation with all the other features.
 
-Strong positive corelation between the following pairs of features:
+Strong positive correlation between the following pairs of features:
 * **Age_Group** and **Vehicle_Age**
 * **Age_Group** and **Previously_Insured**
 * **Age_Group** and **Region_Code_Group**
@@ -768,19 +774,24 @@ Strong positive corelation between the following pairs of features:
 * **Region_Code_Group** and **Vehicle_Age**
 * **Region_Code_Group** and **Previously_Insured**
 * **Gender** and **Policy_Sales_Channel_Group**
+* **Gender** and **Vehicle_Damage**
 """
 
 fig, (ax1,ax2,ax3) = plt.subplots(1, 3, figsize=(20,6))
+
 sns.histplot(binwidth=0.5, x="Age_Group", 
-                 hue="Previously_Insured", data=train, 
+                 hue="Previously_Insured", data=train_prep, 
                  stat="count", multiple="stack",ax=ax1)
 ax1.set_title("Age_Group vs Previously_Insured")
-sns.pointplot(x="Age",y="Vehicle_Age", data=train,ax = ax2)
-ax2.set_title("Age_Group vs  Vehicle_Age")
+
+sns.pointplot(x="Age",y="Vehicle_Age", data=train_prep,ax = ax2)
+ax2.set_title("Age vs  Vehicle_Age")
+
 sns.histplot(binwidth=0.5, x="Age_Group", 
-                 hue="Region_Code_Group", data=train, 
+                 hue="Region_Code_Group", data=train_prep, 
                  stat="count", multiple="stack",ax=ax3)
 ax3.set_title("Age_Group vs Region_Code_Group")
+
 plt.show()
 
 """> **Observations**:
@@ -789,99 +800,50 @@ plt.show()
 * _Age_Group vs Region_Code_Group_: Younger customers were most likely from regions of category Region_C and Region_B, while the majority of the MiddleAge and Old customers came from regions from categories Region_A and Region_C.
 """
 
-fig, axes = plt.subplots(4, 4, figsize=(25,20))
+fig, (ax1,ax2,ax3) = plt.subplots(1, 3, figsize=(25,6))
 
-sns.histplot(binwidth=0.5, x="Age_Group", 
-                 hue="Vehicle_Age", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[0][0])
-axes[0][0].set_title('Age_Group vs Vehicle_Age')
-sns.catplot(x='Age_Group', y='Vehicle_Age',hue="Response",data=train_prep,ax=axes[0][1])
-sns.swarmplot(x='Age_Group', y='Vehicle_Age',hue="Response",data=train_prep,ax=axes[0][1])
-axes[0][1].set_title('Age_Group vs Vehicle_Age w.r.t. Response')
+sns.histplot(binwidth=0.5, hue="Vehicle_Damage", 
+                 x="Policy_Sales_Channel_Group", data=train_prep, 
+                 stat="count", multiple="stack",ax=ax1)
+ax1.set_title("Vehicle_Damage vs Policy_Sales_Channel_Group")
 
-sns.histplot(binwidth=0.5, x="Age_Group", 
-                 hue="Previously_Insured", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[0][2])
-axes[0][2].set_title('Age_Group vs  Previously_Insured')
-sns.pointplot(x='Age_Group', y='Previously_Insured',hue="Response",data=train_prep,ax=axes[0][3])
-axes[0][3].set_title('Age_Group vs Previously_Insured w.r.t. Response')
+sns.histplot(binwidth=0.5, hue="Previously_Insured", 
+                 x="Vehicle_Age", data=train_prep, 
+                 stat="count", multiple="stack",ax=ax2)
+ax2.set_title("Previously_Insured vs  Vehicle_Age")
 
-sns.histplot(binwidth=0.5, x="Age_Group", 
-                 hue="Region_Code_Group", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[1][0])
-axes[1][0].set_title('Age_Group vs  Region_Code_Group')
-sns.pointplot(x='Age_Group', y='Region_Code_Group',hue="Response",data=train_prep,ax=axes[1][1])
-axes[1][1].set_title('Age_Group vs Region_Code_Group w.r.t. Response')
-
-sns.histplot(binwidth=0.5, x="Vehicle_Damage", 
-                 hue="Policy_Sales_Channel_Group", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[1][2])
-axes[1][2].set_title('Vehicle_Damage vs Policy_Sales_Channel_Group')
-sns.pointplot(x='Vehicle_Damage', y='Policy_Sales_Channel_Group',hue="Response",data=train_prep,ax=axes[1][3])
-axes[1][3].set_title('Vehicle_Damage vs Policy_Sales_Channel_Group w.r.t. Response')
-
-sns.histplot(binwidth=0.5, x="Vehicle_Age", 
-                 hue="Previously_Insured", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[2][0])
-axes[2][0].set_title('Vehicle_Age vs Previously_Insured')
-sns.pointplot(x='Vehicle_Age', y='Previously_Insured',hue="Response",data=train_prep,ax=axes[2][1])
-axes[2][1].set_title('Vehicle_Age vs Previously_Insured w.r.t. Response')
-
-sns.histplot(binwidth=0.5, x="Region_Code_Group", 
-                 hue="Vehicle_Age", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[2][2])
-axes[2][2].set_title('Region_Code_Group vs Vehicle_Age')
-sns.pointplot(x='Region_Code_Group', y='Vehicle_Age',hue="Response",data=train_prep,ax=axes[2][3])
-axes[2][3].set_title('Region_Code_Group vs Vehicle_Age w.r.t. Response')
-
-sns.histplot(binwidth=0.5, x="Region_Code_Group", 
-                 hue="Previously_Insured", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[3][0])
-axes[3][0].set_title('Region_Code_Group vs Previously_Insured')
-sns.pointplot(x='Region_Code_Group', y='Previously_Insured',hue="Response",data=train_prep,ax=axes[3][1])
-axes[3][1].set_title('Region_Code_Group vs Previously_Insured w.r.t. Response')
-
-sns.histplot(binwidth=0.5, x="Gender", 
-                 hue="Policy_Sales_Channel_Group", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[3][2])
-axes[3][2].set_title('Gender vs Policy_Sales_Channel_Group')
-sns.pointplot(x='Gender', y='Policy_Sales_Channel_Group',hue="Response",data=train_prep,ax=axes[3][3])
-axes[3][3].set_title('Gender vs Policy_Sales_Channel_Group w.r.t. Response')
+sns.histplot(binwidth=0.5, hue="Gender", 
+                 x="Policy_Sales_Channel_Group", data=train_prep, 
+                 stat="count", multiple="stack",ax=ax3)
+ax3.set_title("Gender vs Policy_Sales_Channel_Group")
 
 plt.show()
 
-fig, axes = plt.subplots(3, 2, figsize=(15,25))
+"""> **Observations**:
+* _Vehicle_Damage vs Policy_Sales_Channel_Group_: Customer reached through Channel_A are the least likely to have damaged their vehicles before, while more customers, reached through Channel_C, claimed to have had damaged vehicles before.
+* _Previously_Insured vs Vehicle_Age_: Customers having new vehicles, of age less than 1 year, are more likely to have had an insurance previously, while customer with older vehicles are less likely to have been insured before.
+* _Gender vs Policy_Sales_Channel_Group_: Female customers were more likely to be reached out through Channel_A, while male customers on the other hand, could be reached out more likely on Channel_C and Channel_B.
+* _Gender vs Vehicle_Damage_: male customers had more damage to their vehicles than female customers;
+male customers with more damage to their cars responded more negatively to the insurance offer than female customers. However, the number of positive responses is similar independent of the gender.
+"""
 
-sns.plot(x='Age_Group', y='Vehicle_Age',data=train_prep,ax=axes[0][0])
-axes[0][0].set_title('Age_Group vs Vehicle_Age')
-sns.stripplot(x='Age_Group', y='Vehicle_Age',hue="Response",data=train_prep,ax=axes[0][1])
-axes[0][1].set_title('Age_Group vs Vehicle_Age w.r.t. Response')
+fig, (ax1,ax2) = plt.subplots(1, 2, figsize=(15,8))
 
-sns.histplot(binwidth=0.5, x="Age_Group", 
-                 hue="Previously_Insured", data=train_prep, 
-                 stat="count", multiple="stack",ax=axes[1][0])
-axes[1][0].set_title('Age_Group vs  Previously_Insured')
-sns.stripplot(x='Age_Group', y='Previously_Insured',hue="Response",data=train_prep,ax=axes[1][1])
-axes[1][1].set_title('Age_Group vs Previously_Insured w.r.t. Response')
+sns.histplot(binwidth=0.5, hue="Previously_Insured", 
+                 x="Region_Code_Group", data=train_prep, 
+                 stat="count", multiple="stack",ax=ax1)
+ax1.set_title("Previously_Insured vs Region_Code_Group")
 
-sns.stripplot(x='Age_Group', y='Region_Code_Group',data=train_prep,ax=axes[2][0])
-axes[2][0].set_title('Age_Group vs  Region_Code_Group')
-sns.stripplot(x='Age_Group', y='Region_Code_Group',hue="Response",data=train_prep,ax=axes[2][1])
-axes[2][1].set_title('Age_Group vs Region_Code_Group w.r.t. Response')
+sns.histplot(binwidth=0.5, hue="Region_Code_Group", 
+                 x="Vehicle_Age", data=train_prep, 
+                 stat="count", multiple="stack",ax=ax2)
+ax2.set_title("Region_Code_Group vs  Vehicle_Age")
 
 plt.show()
 
-"""Observations:
-
-**Age_Group vs Vehicle_Age**: 'Young' customers and 'Old' customers are more likely to have had a car insurance previously, while 'MiddleAged' have the lowest chance of having had an insurance previously.
-
-**Gender vs Vehicle_Damage**: positive correlation
-
-The two plots show that:
-* male customers had more damage to their vehicles than female customers;
-* male customers with more damage to their cars responded more negatively to the insurance offer than female customers. However, the number of positive responses is similar independent of the gender.
-
-Gender should be taken into consideration as well, because it positively influences Vehicle_Damage which has a strong positive correlation with Response.
+"""> **Observations**:
+* _Previously_Insured vs Region_Code_Group_: Customers from Region_A are less likely to have had an insurance previously, while the customers from Region_C are equally likely to have had an insurance before.
+* _Vehicle_Age vs Region_Code_Group_: Customers with newer cars, of age less than 1 year, are more likely to have come from Region_C, while those with cars  of age between 1-2 years could have come from Region_A or Region_C as well. Those who own cars older than 2 years are more likely to reside in Region_A.
 """
 
 fig, (ax1,ax2) = plt.subplots(1, 2, figsize=(15,8))
@@ -891,16 +853,18 @@ sns.lineplot(x='Gender', y='Vehicle_Damage',hue="Response",data=train_corr,ax=ax
 ax2.set_title('Gender vs Vehicle_Damage w.r.t. Response')
 plt.show()
 
-"""**Gender vs Policy Sales Channel Group** : positive correlation
+"""**Observations**:
 
+_Gender vs Vehicle_Damage_: (positive correlation)
+
+The two plots show that:
+* male customers had more damage to their vehicles than female customers;
+* male customers with more damage to their cars responded more negatively to the insurance offer than female customers. However, the number of positive responses is similar independent of the gender.
+
+Gender should be taken into consideration as well, because it positively influences Vehicle_Damage which has a strong positive correlation with Response.
+
+We should also analyze separately the correlation between the two numerical features: _Policy_Sales_Channel_Group_ and _Annual_Premium_Treated_:
 """
-
-fig, (ax1,ax2) = plt.subplots(1, 2, figsize=(15,8))
-sns.barplot(x='Gender', y='Policy_Sales_Channel_Group',data=train_corr,ax=ax1)
-ax1.set_title('Gender vs Policy_Sales_Channel_Group')
-sns.lineplot(x='Gender', y='Policy_Sales_Channel_Group',hue="Response",data=train_corr,ax=ax2)
-ax2.set_title('Gender vs Policy_Sales_Channel_Group w.r.t. Response')
-plt.show()
 
 num_attributes = train_corr[['Annual_Premium_Treated', 'Policy_Sales_Channel_Group']]
 num_corr_matrix = num_attributes.corr()
@@ -915,6 +879,9 @@ plt.show()
 """After analyzing the correlation between the two numerical features, Policy_Sales_Channel_Group and Annual_Premium_Treated, we found out that they are also slightly negatively correlated, but the correlation value -0.06 is still closer to 0, which means it is subtle and we can keep both features, as they have little influence on each other.
 
 # Data cleaning
+
+Before starting to build the model to predict if a customer would be interested in vehicle insurance, we should prepare the dataset by removing the invalid (empty) or unecessary data.
+
 ## Remove null (empty) values if any
 
 It seems that there are no features with empty values, each has 381109 non-null values, so no line has to be removed or filled with some default value.
