@@ -469,9 +469,9 @@ ax3.set_title("Age_Group vs Vehicle_Age")
 plt.show()
 
 """**Observations**:
-* _Age_Group vs Previously_Insured_: _Young_ people are the most likely to have had an insurance previously, while the older generations, _MiddleAged_ and _Old_ are less likely to have been insured before.
-* _Age vs Annual_Premium_: Younger customer with ages between 20-30, are more likely to pay a larger sum for insurance, as well as those with ages 50-80. The customer with ages between 30-50 are paying the least amount for annual premium.
-* _Age_Group vs Vehicle_Age_: _Young_ customers tend to have newer cars, with age < 1 Year, while the older generations have cars with age between 1-2 years, and only few have cars older than 2 years.
+* *Age_Group vs Previously_Insured*: _Young_ people are the most likely to have had an insurance previously, while the older generations, _MiddleAged_ and _Old_ are less likely to have been insured before.
+* *Age vs Annual_Premium*: Younger customer with ages between 20-30, are more likely to pay a larger sum for insurance, as well as those with ages 50-80. The customer with ages between 30-50 are paying the least amount for annual premium.
+* *Age_Group vs Vehicle_Age*: _Young_ customers tend to have newer cars, with age < 1 Year, while the older generations have cars with age between 1-2 years, and only few have cars older than 2 years.
 
 #### **Annual premium**
 
@@ -504,7 +504,7 @@ ax2.set_title("Annual Premium distribution with Response")
 
 """After removing the outlier values and rescaling the range of values, we observe form the plots that most of the people pay around the same amount of Annual Premium, and the responses were also balanced for those who pay a fairly similar amount for Annual Premium, therefore, it doesn't influence the customer's response as much as one would expect.
 
-##### _Annual_Premium_Treated vs other features_
+##### *Annual_Premium_Treated vs other features*
 """
 
 fig, (ax1,ax2,ax3,ax4) = plt.subplots(1, 4, figsize=(25,8))
@@ -524,10 +524,10 @@ ax4.set_title("Annual_Premium_Treated vs Vintage")
 plt.show()
 
 """> **Observations**:
-* _Annual_Premium_Treated vs Age_Group_: it seems that _Old_ customers have to pay the most for annual premium, and _MiddleAged_ customers pay less.
-* _Annual_Premium_Treated vs Vehicle_Age and Vehicle_Damage_: Customers with cars older than 2 years with no previous damage pay the smallest amount of annual premium, while those who have older cars which have been damaged before, pay the largest amount. Customers with newer cars pay roughly the same amount for Annual premium, independent of whether the car has been damaged before or not.
-* _Annual_Premium_Treated vs Previously_Insured_: it seems that customers who have been previously insured have to pay more for Annual premium than those who have not been insured before.
-* _Annual_Premium_Treated vs Vintage_: The majority of the customers pay the same amount of money for annual insurance, an average value, independent of their vintage.
+* *Annual_Premium_Treated vs Age_Group*: it seems that _Old_ customers have to pay the most for annual premium, and _MiddleAged_ customers pay less.
+* *Annual_Premium_Treated vs Vehicle_Age and Vehicle_Damage*: Customers with cars older than 2 years with no previous damage pay the smallest amount of annual premium, while those who have older cars which have been damaged before, pay the largest amount. Customers with newer cars pay roughly the same amount for Annual premium, independent of whether the car has been damaged before or not.
+* *Annual_Premium_Treated vs Previously_Insured*: it seems that customers who have been previously insured have to pay more for Annual premium than those who have not been insured before.
+* *Annual_Premium_Treated vs Vintage*: The majority of the customers pay the same amount of money for annual insurance, an average value, independent of their vintage.
 
 #### **Vintage**
 
@@ -558,8 +558,8 @@ ax3.set_title("Vintage vs Previously_Insured and Response")
 plt.show()
 
 """> **Observations**:
-*  _Vintage vs Age_Group_: MiddleAged customers who have been associated with the company for longer (have higher Vintage) also have the most positive responses, while Young customers who have been associated with the insurance company for longer had the most negative responses.
-* _Vintage vs Previously_Insured_: The Vintage value of the customers doesn't affect the Previously_Insured and Response features, as we can see for both insured and not insured customers, the responses were equally distributed.
+*  *Vintage vs Age_Group*: MiddleAged customers who have been associated with the company for longer (have higher Vintage) also have the most positive responses, while Young customers who have been associated with the insurance company for longer had the most negative responses.
+* *Vintage vs Previously_Insured*: The Vintage value of the customers doesn't affect the Previously_Insured and Response features, as we can see for both insured and not insured customers, the responses were equally distributed.
 
 * **Region_Code**
 """
@@ -602,8 +602,8 @@ ax2.set_title("Region_Code_Group distribution with Annual_Premium")
 plt.show()
 
 """> **Observation**:
-* _Region_Code_Group vs Vintage_: The customers belonging to Region_B had the highest Vintage values and the newest customers come from Region_A.
-* _Region_Code_Group vs Annual_Premium_: customers from Region_B and Region_A pay almost the same amount of annual premium for insurance.
+* *Region_Code_Group vs Vintage*: The customers belonging to Region_B had the highest Vintage values and the newest customers come from Region_A.
+* *Region_Code_Group vs Annual_Premium*: customers from Region_B and Region_A pay almost the same amount of annual premium for insurance.
 
 * **Policy Sales Channel**
 """
@@ -648,10 +648,10 @@ ax4.set_title("Policy_Sales_Channel_Group vs Region_Code_Group")
 plt.show()
 
 """> **Observations**:
-* _Policy_Sales_Channel_Group vs Vintage_: Customers who have been with the insurance company were reached mainly through channels from category Channel_A, while newer customers through channels from category Channel_D.
-* _Policy_Sales_Channel_Group vs Gender_: The number of male and female customers were reached out through each channel is equally distributed, therefore Gender doesn't really affect the distribution. However, interesting to note that the least popular channels to contact customers were proven to be from category Channel_A.
-* _Policy_Sales_Channel_Group vs Age_Group_: Most of the Young customers could be reached through channels from category Channel_A, MiddleAged customer were reached through channels from categories Channel_C and Channel_D, while Old customers through channels from catgeories Channel_C.
-* _Policy_Sales_Channel_Group vs Region_Code_Group_: Most of the customers from regions of category Region_A were reached through channels from Channel_B. The customers from Region_B and Region_C were mainly reached through Channel_B and Channel_D. Again, through Channel_A were reached the least amount of customers, independent of region.
+* *Policy_Sales_Channel_Group vs Vintage*: Customers who have been with the insurance company were reached mainly through channels from category Channel_A, while newer customers through channels from category Channel_D.
+* *Policy_Sales_Channel_Group vs Gender*: The number of male and female customers were reached out through each channel is equally distributed, therefore Gender doesn't really affect the distribution. However, interesting to note that the least popular channels to contact customers were proven to be from category Channel_A.
+* *Policy_Sales_Channel_Group vs Age_Group*: Most of the Young customers could be reached through channels from category Channel_A, MiddleAged customer were reached through channels from categories Channel_C and Channel_D, while Old customers through channels from catgeories Channel_C.
+* *Policy_Sales_Channel_Group vs Region_Code_Group*: Most of the customers from regions of category Region_A were reached through channels from Channel_B. The customers from Region_B and Region_C were mainly reached through Channel_B and Channel_D. Again, through Channel_A were reached the least amount of customers, independent of region.
 
 ## Data pre-processing for categorical features
 As we have seen, some of these categorical features, mainly those which represent more than 2 (binary) categories, contain values in form of a text, which have to be encoded using numerical labels in order to use them later for our model.
@@ -795,9 +795,9 @@ ax3.set_title("Age_Group vs Region_Code_Group")
 plt.show()
 
 """> **Observations**:
-* _Age_Group vs Previously_Insured_: Younger customers were more likely to have had a previous insurance, while MiddleAged and Old customers had not.
-* _Age_Group vs Vehicle_Age_: Younger customers had newer cars, with age < 1 year, MiddleAged customers had mainly cars of 1-2 years and Old customers had rather older cars than 2 years. This shows that older generations were more likely to own also older vehicles.
-* _Age_Group vs Region_Code_Group_: Younger customers were most likely from regions of category Region_C and Region_B, while the majority of the MiddleAge and Old customers came from regions from categories Region_A and Region_C.
+* *Age_Group vs Previously_Insured*: Younger customers were more likely to have had a previous insurance, while MiddleAged and Old customers had not.
+* *Age_Group vs Vehicle_Age*: Younger customers had newer cars, with age < 1 year, MiddleAged customers had mainly cars of 1-2 years and Old customers had rather older cars than 2 years. This shows that older generations were more likely to own also older vehicles.
+* *Age_Group vs Region_Code_Group*: Younger customers were most likely from regions of category Region_C and Region_B, while the majority of the MiddleAge and Old customers came from regions from categories Region_A and Region_C.
 """
 
 fig, (ax1,ax2,ax3) = plt.subplots(1, 3, figsize=(25,6))
@@ -820,10 +820,10 @@ ax3.set_title("Gender vs Policy_Sales_Channel_Group")
 plt.show()
 
 """> **Observations**:
-* _Vehicle_Damage vs Policy_Sales_Channel_Group_: Customer reached through Channel_A are the least likely to have damaged their vehicles before, while more customers, reached through Channel_C, claimed to have had damaged vehicles before.
-* _Previously_Insured vs Vehicle_Age_: Customers having new vehicles, of age less than 1 year, are more likely to have had an insurance previously, while customer with older vehicles are less likely to have been insured before.
-* _Gender vs Policy_Sales_Channel_Group_: Female customers were more likely to be reached out through Channel_A, while male customers on the other hand, could be reached out more likely on Channel_C and Channel_B.
-* _Gender vs Vehicle_Damage_: male customers had more damage to their vehicles than female customers;
+* *Vehicle_Damage vs Policy_Sales_Channel_Group*: Customer reached through Channel_A are the least likely to have damaged their vehicles before, while more customers, reached through Channel_C, claimed to have had damaged vehicles before.
+* *Previously_Insured vs Vehicle_Age*: Customers having new vehicles, of age less than 1 year, are more likely to have had an insurance previously, while customer with older vehicles are less likely to have been insured before.
+* *Gender vs Policy_Sales_Channel_Group*: Female customers were more likely to be reached out through Channel_A, while male customers on the other hand, could be reached out more likely on Channel_C and Channel_B.
+* *Gender vs Vehicle_Damage*: male customers had more damage to their vehicles than female customers;
 male customers with more damage to their cars responded more negatively to the insurance offer than female customers. However, the number of positive responses is similar independent of the gender.
 """
 
@@ -842,8 +842,8 @@ ax2.set_title("Region_Code_Group vs  Vehicle_Age")
 plt.show()
 
 """> **Observations**:
-* _Previously_Insured vs Region_Code_Group_: Customers from Region_A are less likely to have had an insurance previously, while the customers from Region_C are equally likely to have had an insurance before.
-* _Vehicle_Age vs Region_Code_Group_: Customers with newer cars, of age less than 1 year, are more likely to have come from Region_C, while those with cars  of age between 1-2 years could have come from Region_A or Region_C as well. Those who own cars older than 2 years are more likely to reside in Region_A.
+* *Previously_Insured vs Region_Code_Group*: Customers from Region_A are less likely to have had an insurance previously, while the customers from Region_C are equally likely to have had an insurance before.
+* *Vehicle_Age vs Region_Code_Group*: Customers with newer cars, of age less than 1 year, are more likely to have come from Region_C, while those with cars  of age between 1-2 years could have come from Region_A or Region_C as well. Those who own cars older than 2 years are more likely to reside in Region_A.
 """
 
 fig, (ax1,ax2) = plt.subplots(1, 2, figsize=(15,8))
@@ -855,7 +855,7 @@ plt.show()
 
 """**Observations**:
 
-_Gender vs Vehicle_Damage_: (positive correlation)
+*Gender vs Vehicle_Damage*: (positive correlation)
 
 The two plots show that:
 * male customers had more damage to their vehicles than female customers;
