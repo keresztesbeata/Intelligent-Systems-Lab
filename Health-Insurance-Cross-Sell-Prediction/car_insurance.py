@@ -772,87 +772,14 @@ plt.show()
 * *Policy_Sales_Channel_Group vs Age_Group*: Most of the Young customers could be reached through channels from category Channel_A, MiddleAged customer were reached through channels from categories Channel_C and Channel_D, while Old customers through channels from categories Channel_C.
 * *Policy_Sales_Channel_Group vs Region_Code_Group*: Most of the customers from regions of category Region_A were reached through channels from Channel_B. The customers from Region_B and Region_C were mainly reached through Channel_B and Channel_D. Again, through Channel_A were reached the least amount of customers, independent of region.
 
-# 3. Data cleaning
-
-Before starting to build the model to predict if a customer would be interested in vehicle insurance, we should prepare the dataset by removing the invalid (empty) or unecessary data.
-"""
-
-# copy the initially loaded data
-train_prep = train_data.copy()
-train_prep.head()
-
-"""## Remove null (empty) values if any
-
-It seems that there are no features with empty values, each has 381109 non-null values, so no line has to be removed or filled with some default value.
-"""
-
-train_prep.info()
-
-# Another way for checking for missing values
-train_prep.isnull().sum()
-
-"""# 4. Data processing
-
-## Encoding categorical features
-As we have seen, some of these categorical features, mainly those which represent more than 2 (binary) categories, contain values in form of a text, which have to be encoded using numerical labels in order to use them later for our model.
-
-Using a **LabelEncoder** we can assign a unique numerical code for each distinct *binary* category inside a feature, and the final form of the data becomes:
-* for binary categories 0 represents if the property is present, 1 if it is missing, for ex. having or not having Previous Damage to the vehicle. In case of Gender, 1 means 'Male', while 0 means 'Female'.
-
-For categories where the order matters, such as Vehicle_Age we can use an **OrdinalEncoder**:
-* as for the categories with multiple values, in this case only the Vehicle_Age, 0 stands for '1-2 Years', 1 means having '< 1 Years' and 2 for '> 2 Years.
-"""
-
-from sklearn.preprocessing import LabelEncoder,OrdinalEncoder
-
-# assign labels for each category
-label_encoder = LabelEncoder()
-categorical_features = ['Gender','Vehicle_Damage']
-train_prep[categorical_features] = train_prep[categorical_features].apply(label_encoder.fit_transform)
-ordinal_encoder = OrdinalEncoder()
-train_prep[['Vehicle_Age']] = ordinal_encoder.fit_transform(train_prep[['Vehicle_Age']])
-train_prep.head()
-
-"""## Removing outlier values for numerical features (Skew-correct)
-
-Remove the values which are very far from the majority of the values, because they could cause problems and introduce errors, distortions in the prediction model. This approch can be applies for the Annual_Premium feature, as it contains outlier values, as previously shown in the plots.
-"""
-
-# compute the upper limit which represents a threshold for filtering out the outlier values
-def get_upper_limit(x):
-  upper_limit = 2.5 * x.quantile(0.75)  - 1.5 * x.quantile(0.25)
-  return upper_limit
-
-upper_limit_for_Annual_Premium = get_upper_limit(train_prep['Annual_Premium'])
-
-# remove outlier values based on the previously computed UpperLimit
-train_prep['Annual_Premium'] = np.where(train_prep['Annual_Premium'] > upper_limit_for_Annual_Premium, upper_limit_for_Annual_Premium, train_prep['Annual_Premium'])
-
-"""## Scaling
-
-We use Mix Max Scaler to scale down the independent features:
-"""
-
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-
-scaler = MinMaxScaler()
-# normalize the data to fit in the scale of [0,1] 
-train_prep['Annual_Premium'] = scaler.fit_transform(train_prep['Annual_Premium'].values.reshape(-1,1))
-train_prep['Age'] = scaler.fit_transform(train_prep['Age'].values.reshape(-1, 1))
-train_prep['Region_Code'] = scaler.fit_transform(train_prep['Region_Code'].values.reshape(-1, 1))
-train_prep['Policy_Sales_Channel'] = scaler.fit_transform(train_prep['Policy_Sales_Channel'].values.reshape(-1, 1))
-
-train_prep.describe().T
-
-"""# 5. Analyzing correlation between features
+# Analyzing correlation between features
 
 In order to determine which features have a greater influence on the Response, it is not enough to observe them individually, as they could influence one another in some way, therefore we are curious to find a relationship/correlation between some of the features and to isolate features that are completely independent of the others and may have no relevance to the result.
 
-For finding the correlation between features, we can use Pearsson's formula for correlation, already implemented in the Pandas library. For categorical features we apply factorization before calling the correlation function.
+For finding the correlation between features, we can use Pearsson's formula for correlation, already implemented in the Pandas library.
 """
 
-# corr_matrix = train_data.apply(lambda x : pd.factorize(x)[0]).corr(method='pearson', min_periods=1)
-corr_matrix = train_prep.corr()
+corr_matrix = train.corr()
 corr_matrix["Response"].sort_values(ascending=False)
 
 """Attributes which influence positively the Response attribute:
@@ -926,21 +853,40 @@ plt.show()
 * *Age vs Gender*: Among the younger customers there are more females and among the older ones more males.
 * *Age vs Annual_Premium_Treated*: Each customer pays roughly the same amount for Annual Premium, but younger customers are in majority, therefore they are more likely to pay an average amount.
 
-## Remove unneccesary features
-
-We clean the dataset by removing the unnecessary features, which don't influence in any way the response, for example:
-* **id** of the clients, which is only used to distinguish the different customers.
-* **Vintage**, because most of the customers have been with the company for the same amount of time, around 150 days, so it doesn't affect the result much. 
-
-Also, from the correlation matrix it is evident that there is 0 correlation between Vintage, respectively id, and any other attribute.
-* **Driving_License** as the majority of the customers own a driving license.
+The dataset contains both numerical and categorical features, but the correlation matrix computed above is based on the Pearson's formula which can be used to determine only the correlation between numerical features. In order to compare and find out the association between numerical and categorical features we can use some of the functions provided by the dython library.
 """
 
-unnecessary_columns = ['id', 'Driving_License', 'Vintage']
-train_prep.drop(columns = unnecessary_columns, inplace = True)
-train_prep.head()
+pip install dython
 
-"""# Analysis Summary
+from dython.nominal import associations
+from dython.nominal import identify_nominal_columns
+from dython.nominal import cluster_correlations
+categorical_features=identify_nominal_columns(train_data)
+
+correlations = associations(train_data, compute_only=True, figsize=(10, 10), mark_columns=True)['corr']
+correlations, _ = cluster_correlations(correlations)
+plt.figure(figsize=(10, 10))
+sns.heatmap(correlations, annot=True, vmin=-1, vmax=1, cmap="icefire", fmt=".2f")
+correlations["Response (con)"].sort_values(ascending = False)
+
+"""According to the generated heatmap and the correlation matrix, we can see that:
+* **Vehicle_Damage** and **Vehicle_Age** are in _strong positive_ correlation with Response label.
+* **Age** is in _weak positive_ correlation with Response
+* **Previously_Insured** is _strongly negatively_ correlated to Response
+* **Policy_Sales_Channel** is in _weakly negatively_ correlated to Response
+
+Analyzing the correlation between independent features, we observe that theer is a **strong positive** correlation between:
+* **Vehicle_Damage** and **Previously_Insured**
+* **Vehicle_Age** and **Age**
+* **Vehicle_Age** and **Policy_Sales_Channel**
+* **Vehicle_Age** and **Vehicle_Damage**
+
+Also, there is a **strong negative** correlation between:
+* **Age** and **Policy_Sales_Channel**
+
+From the correlation matrix it is also visible that the **Id**, **Vintage** and **Driving_License** have little to no correlation with any other feature.
+
+# Analysis Summary
 
 Studying the customer's data with respect to their response, we arrive to the conclusion that the insurance company should target customers who:
 1. have a driving license
@@ -950,4 +896,221 @@ Studying the customer's data with respect to their response, we arrive to the co
 6. middle-aged, having an age between 30-50 or older, as younger customers have shown less interest in insurance
 7. come from regions from category Region_A, for example region 28.
 8. can be reached out through the top policy sales channels 152, 26 or 124.
+
+# Prepare data for machine learning algorithms
 """
+
+insurance = train_data.drop("Response", axis=1) # drop labels for training set
+insurance_labels = train_data["Response"].copy()
+
+"""# 3. Data cleaning
+
+Before starting to build the model to predict if a customer would be interested in vehicle insurance, we should prepare the dataset by removing the invalid (empty) or unecessary data.
+
+"""
+
+# copy the initially loaded data
+insurance_prep = insurance.copy()
+insurance_prep.head()
+
+"""## Remove null (empty) values if any
+
+It seems that there are no features with empty values, each has 381109 non-null values, so no line has to be removed or filled with some default value.
+"""
+
+insurance_prep.info()
+
+# Another way for checking for missing values
+insurance_prep.isnull().sum()
+
+"""# 4. Data processing
+
+## Remove unneccesary features
+
+The features, which don't influence in any way the response, are for example:
+* **id** of the clients, which is only used to distinguish the different customers.
+* **Vintage**, because most of the customers have been with the company for the same amount of time, around 150 days, so it doesn't affect the result much. 
+Also, from the correlation matrix it is evident that there is 0 correlation between Vintage, respectively id, and any other attribute.
+* **Driving_License** as the majority of the customers own a driving license.
+
+Out of these, only the **id** feature is removed eventually. **Vintage** and **Driving_License** do not seem very important in predicting the response, they are not correlated with any feature, or just weakly, but since the correlation between features is not linear, we cannot exclude them entirely from our analysys, as they could, at some point, influence the Response directly or through other features.
+"""
+
+unnecessary_columns = ['id']
+insurance_prep.drop(columns = unnecessary_columns, inplace = True)
+insurance_prep.head()
+
+"""## Removing outlier values for numerical features (Skew-correct)
+
+Remove the values which are very far from the majority of the values, because they could cause problems and introduce errors, distortions in the prediction model. This approch can be applies for the Annual_Premium feature, as it contains outlier values, as previously shown in the plots.
+"""
+
+# compute the upper limit which represents a threshold for filtering out the outlier values
+def get_upper_limit(x):
+  upper_limit = 2.5 * x.quantile(0.75)  - 1.5 * x.quantile(0.25)
+  return upper_limit
+
+upper_limit_for_Annual_Premium = get_upper_limit(insurance_prep['Annual_Premium'])
+
+# remove outlier values based on the previously computed UpperLimit
+insurance_prep['Annual_Premium'] = np.where(insurance_prep['Annual_Premium'] > upper_limit_for_Annual_Premium, upper_limit_for_Annual_Premium, insurance_prep['Annual_Premium'])
+
+"""## Encoding categorical features
+As we have seen, some of these categorical features, mainly those which represent more than 2 (binary) categories, contain values in form of a text, which have to be encoded using numerical labels in order to use them later for our model.
+
+Using a **LabelEncoder** we can assign a unique numerical code for each distinct *binary* category inside a feature, and the final form of the data becomes:
+* for binary categories 0 represents if the property is present, 1 if it is missing, for ex. having or not having Previous Damage to the vehicle. In case of Gender, 1 means 'Male', while 0 means 'Female'.
+
+For categories where the order matters, such as Vehicle_Age we can use an **OrdinalEncoder**:
+* as for the categories with multiple values, in this case only the Vehicle_Age, 0 stands for '1-2 Years', 1 means having '< 1 Years' and 2 for '> 2 Years.
+"""
+
+from sklearn.preprocessing import LabelEncoder,OrdinalEncoder
+
+# assign labels for each category
+label_encoder = LabelEncoder()
+categorical_features = ['Gender','Vehicle_Damage']
+insurance_prep[categorical_features] = insurance_prep[categorical_features].apply(label_encoder.fit_transform)
+ordinal_encoder = OrdinalEncoder()
+insurance_prep[['Vehicle_Age']] = ordinal_encoder.fit_transform(insurance_prep[['Vehicle_Age']])
+insurance_prep.head()
+
+"""## Scaling
+
+We use Mix Max Scaler to scale down the independent features:
+"""
+
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+# normalize the data to fit in the scale of [0,1] 
+numerical_features = ['Annual_Premium','Age','Region_Code','Policy_Sales_Channel','Vintage']
+
+for nf in numerical_features:
+  insurance_prep[nf] = scaler.fit_transform(insurance_prep[nf].values.reshape(-1,1))  
+
+insurance_prep.head()
+
+insurance_prep.describe().T
+
+"""## All in one:"""
+
+def prepare_data(data):
+  # setup
+  from sklearn.preprocessing import LabelEncoder,OrdinalEncoder
+  from sklearn.preprocessing import MinMaxScaler
+
+  # create a copy of the initial data set
+  prep_data = data.copy()
+
+  # remove the 'id' column
+  prep_data.drop(columns = ['id'], inplace = True)
+
+  x = prep_data['Annual_Premium']
+  upper_limit = 2.5 * x.quantile(0.75)  - 1.5 * x.quantile(0.25)
+
+  # remove outlier values based on the previously computed upper_limit
+  prep_data['Annual_Premium'] = np.where(prep_data['Annual_Premium'] > upper_limit_for_Annual_Premium, upper_limit_for_Annual_Premium, prep_data['Annual_Premium'])
+
+  # assign labels for each category
+  label_encoder = LabelEncoder()
+  categorical_features = ['Gender','Vehicle_Damage']
+  prep_data[categorical_features] = prep_data[categorical_features].apply(label_encoder.fit_transform)
+  ordinal_encoder = OrdinalEncoder()
+  prep_data[['Vehicle_Age']] = ordinal_encoder.fit_transform(prep_data[['Vehicle_Age']])
+
+  scaler = MinMaxScaler()
+  # normalize the data to fit in the scale of [0,1] 
+  numerical_features = ['Annual_Premium','Age','Region_Code','Policy_Sales_Channel','Vintage']
+  for nf in numerical_features:
+    prep_data[nf] = scaler.fit_transform(prep_data[nf].values.reshape(-1,1))  
+
+  return prep_data
+
+# check if the data processing function works correctly
+prepare_data(train_data).head()
+
+"""# Build transformation pipeline"""
+
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder,OrdinalEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import FeatureUnion
+from sklearn.impute import SimpleImputer
+
+# Select numerical or categorical columns from the data set
+class OldDataFrameSelector(BaseEstimator, TransformerMixin):
+    def __init__(self, attribute_names):
+        self.attribute_names = attribute_names
+    def fit(self, X, y=None):
+        return self
+    def transform(self, X):
+        return X[self.attribute_names].values
+
+# Remove unnecessary columns from the data set
+class ColumnRemover():
+    def __init__(self,columns):
+        self.columns=columns
+    def fit(self, X, y=None):
+        return self 
+    def transform(self,X,y=None):
+        return X.drop(self.columns,axis=1)
+
+num_attributes = ['Age','Region_Code','Policy_Sales_Channel','Vintage']
+cat_attributes = ['Gender','Previously_Insured']
+cat_ordinal_attributes = ['Vehicle_Damage']
+columns_to_remove = ['id']
+columns_with_outliers = ['Annual_Premium']
+
+num_pipeline = Pipeline([
+        ('column_remover', ColumnRemover(columns_to_remove)),
+        ('selector', OldDataFrameSelector(num_attributes)),
+        ('min_max_scaler', MinMaxScaler())
+    ])
+
+num_with_outlier_pipeline = Pipeline([
+        ('column_remover', ColumnRemover(columns_with_outliers)),
+        ('selector', OldDataFrameSelector(num_attributes)),
+        ('outlier_removal', SimpleImputer(strategy='most_frequent')),
+        ('min_max_scaler', MinMaxScaler())     
+])
+
+cat_pipeline = Pipeline([
+        ('selector', OldDataFrameSelector(cat_attributes)),
+        ("cat_1h_encoder", OneHotEncoder(sparse=False)),
+    ])
+
+cat_ordinal_pipeline = Pipeline([
+        ('selector', OldDataFrameSelector(cat_ordinal_attributes)),
+         ("cat_ordinal_encoder", OrdinalEncoder()),
+    ])
+
+
+full_pipeline = FeatureUnion(transformer_list=[
+        ("num_pipeline", num_pipeline),
+        ("num_with_outliers_pipeline", num_with_outlier_pipeline),
+        ("cat_pipeline", cat_pipeline),
+        ("cat_ordinal_pipeline", cat_ordinal_pipeline),
+    ])
+
+test_data_processing_pipeline = full_pipeline.fit_transform(train_data)
+pd.DataFrame(test_data_processing_pipeline).head()
+
+"""# Building a predictive model
+
+We would like to predict if a customer would be interested in having a car insurance, therefore the predicted result is a binary value, indicating 'Yes' or 'No' answer. Regression algorithms should be considered in this case, as they are used to predict discrete values, in this case: 'Customer interested'/ 'Not interested'.
+
+## Training and evaluating on the training set
+
+## 1. Linear regression
+"""
+
+from sklearn.linear_model import LinearRegression
+
+df_prep = prepare_data(train_data)
+
+lin_reg = LinearRegression()
+lin_reg.fit(df_prep,df_prep['Response'])
+df_prep.head()
